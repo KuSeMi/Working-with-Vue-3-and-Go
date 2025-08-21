@@ -47,7 +47,26 @@ export default {
   },
   methods: {
     submitHandler() {
+      const payload = {
+        email: this.email,
+        password: this.password,
+      }
 
+      const requestOptions = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      }
+
+      fetch("http://localhost:8081/users/login", requestOptions)
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.error) {
+            console.log("Error: " + data.message);
+          } else {
+            console.log("Success: " + data.message);
+          }
+        }) 
     }
   },
 }
