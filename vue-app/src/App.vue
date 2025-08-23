@@ -9,6 +9,14 @@
 <script>
 import Header from './components/Header.vue';
 import Footer from './components/Footer.vue';
+import { store } from './components/store.js'
+
+const getCookie = (cname) => {
+  return document.cookie.split('; ').reduce((r, v) => {
+    const parts = v.split('=');
+    return parts[0] === cname ? decodeURIComponent(parts[1]) : r;
+  }, "");
+}
 
 export default {
   name: 'App',
@@ -16,6 +24,27 @@ export default {
     Header,
     Footer
   },
+  data() {
+    return {
+      store,
+    }
+  },
+  beforeMount() {
+    // check fo a cookie
+    let data = getCookie("_site_data_");
+    if (data !== "") {
+      let cookieData = JSON.parse(data);
+
+      // update stroe
+      store.token = cookieData.token.token;
+      store.user = {
+        id: cookieData.user.id,
+        first_name: cookieData.user.first_name,
+        last_name: cookieData.user.last_name,
+        email: cookieData.user.email,
+      };
+    } 
+  }
 }
 </script>
 

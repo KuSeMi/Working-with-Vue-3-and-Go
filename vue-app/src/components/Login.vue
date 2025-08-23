@@ -33,6 +33,11 @@
 <script>
 import FormTag from './forms/FormTag.vue'
 import TextInput from './forms/TextInput.vue'
+import { store } from './store.js'
+import router from './../router/index.js'
+import notie from 'notie'
+
+
 export default {
   name: 'AppLogin',
   components: {
@@ -43,31 +48,55 @@ export default {
     return {
       email: '',
       password: '',
+      store,
     }
   },
-  methods: {
+   methods: {
     submitHandler() {
+      console.log("submitHandler called - success!");
+
       const payload = {
         email: this.email,
         password: this.password,
       }
 
       const requestOptions = {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
         body: JSON.stringify(payload),
       }
 
       fetch("http://localhost:8081/users/login", requestOptions)
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.error) {
-            console.log("Error: " + data.message);
+        .then(response => response.text().then(text => text ? JSON.parse(text) : {}))
+        .then((response) => {
+          if (response.error) {
+            notie.alert({ type: 'error', text: response.message });
           } else {
-            console.log("Success: " + data.message);
+            console.log("Token:", response.data.token.token);
+            store.token = response.data.token.token;
+            store.user = {
+              id: response.data.user.id,
+              first_name: response.data.user.first_name,
+              last_name: response.data.user.last_name,
+              email: response.data.user.email,
+            };
+
+            // save info to cookie
+            let date = new Date();
+            let expDate = 1;
+            date.setTime(date.getTime() + (expDate * 24 * 60 * 60 * 1000));
+            const expires = "expires=" + date.toUTCString();
+
+            //set the cookie
+            document.cookie = "_site_data_="
+            + JSON.stringify(response.data)
+            + "; "
+            + expires
+            + ";path=/ SameSite=strict; Secure";
+
+            router.push("/");
           }
-        }) 
+        })
     }
-  },
+  }
 }
 </script>
