@@ -10,6 +10,31 @@
         <li class="nav-item">
           <router-link class="nav-link active" aria-current="page" to="/">Home</router-link>
         </li>
+
+        <li class="nav-item">
+          <router-link class="nav-link active" to="/books">Books</router-link>
+        </li>
+
+        <li v-if="store.token != ''" class="nav-item dropdown">
+          <a href="#" class="nav-link dropdown-toggle" id="navbarDropDown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Admin
+          </a>
+            <ul class="dropdown-menu" aria-labelledby="navbarDropDown">
+                <li>
+                  <router-link class="dropdown-item" to="/admin/users">Manage Users</router-link>
+                </li>
+                <li>
+                  <router-link class="dropdown-item" to="/admin/users/0">Add User</router-link>
+                </li>   
+                <li>
+                  <router-link class="dropdown-item" to="/admin/books">Manage Books</router-link>
+                </li>
+                <li>
+                  <router-link class="dropdown-item" :to="{name: 'BookEdit', params: {bookId: 0}}">Add Book</router-link>
+                </li>
+            </ul>
+        </li>
+
         <li class="nav-item">
           <router-link v-if="!store.token" class="nav-link" to="/login">Login</router-link>
           <a href="javascript:void(0);" v-else class="nav-link" @click="logout">Logout</a>
@@ -28,7 +53,7 @@
 <script >
 import { store } from './store.js';
 import router from './../router/index.js';
-
+import Security from './security.js'
 
 export default {
   name: 'AppHeader',
@@ -42,11 +67,8 @@ export default {
       const payload = {
         token: store.token,
       }
-      const requestOptions = {
-        method: "POST",
-        body: JSON.stringify(payload),
-      }
-      fetch("http://localhost:8081/users/logout", requestOptions)
+    
+      fetch(process.env.VUE_APP_API_URL + "/users/logout", Security.requestOptions(payload))
         .then(response => response.json())
         .then((response) => {
           if (response.error) {
