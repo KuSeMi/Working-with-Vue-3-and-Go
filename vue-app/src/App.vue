@@ -1,7 +1,11 @@
 <template>
   <Header/>
   <div>
-    <router-view :ket="componentKey" @success="success" @error="error" @warning="warning" @forceUpdate="forceUpdate"/>
+    <router-view v-slot="{ Component }" :ket="componentKey" @success="success" @error="error" @warning="warning" @forceUpdate="forceUpdate">
+      <keep-alive include="AppBooks">
+        <component :is="Component"/>
+      </keep-alive>
+    </router-view>  
   </div>
   <Footer/>
 </template>
